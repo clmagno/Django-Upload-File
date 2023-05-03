@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% load static %}
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <!-- Favicon-->
+    <link rel="icon" type="image/x-icon" href="{% static 'assets/favicon.ico' %}" />
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container d-flex justify-content-center align-items-center pt-3 mt-3" style="height: 100vh">
+    <div class="text-center">
+        <h2>Upload and Classify an Image</h2>
+        <div class="card ">
+            <div class="card-body">
+                {% if classification_result %}
+            <div class="mt-3">
+                <img class="card-img-top" width="500" src="{{ image_path }}">
+                <h4>Classification Result:</h4>
+                <p>{{ classification_result }}</p>
+            </div>
+             <button onclick="goToHomePage()" class="btn btn-primary mt-3">Back</button>
+                {% else %}
+                <form action="{% url 'upload_image' %}" method="post" enctype="multipart/form-data" id="upload-form">
+                    {% csrf_token %}
+                    <img class="card-img-top" width="500" id="preview" src="#" alt="Preview Image" style="display: none;">
+                    <div class="mb-3">
+                        <input class="form-control" type="file" name="image" id="image-in" required accept="image/*" onchange="previewImage(event)">
+                    </div>
+                </form>
+                <form method="post" action="{% url 'classify_image' id=images.id|default:0 %}" enctype="multipart/form-data" class="form" id="classify-form">
+                    {% csrf_token %}
+                    <button class="btn btn-primary col-lg-12" type="submit" name="classify" id="classify" disabled>Classify</button>
+                </form>
+                 {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+function previewImage(event) {
+    var preview = document.getElementById('preview');
+    preview.style.display = 'block';
+    preview.src = URL.createObjectURL(event.target.files[0]);
+
+    document.getElementById("classify").removeAttribute("disabled");
+
+    var form = document.getElementById('upload-form');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', form.action);
+    xhr.setRequestHeader('X-CSRFToken', form.csrfmiddlewaretoken.value);
+    var formData = new FormData(form);
+    xhr.send(formData);
+
+    var form2 = document.getElementById('classify-form');
+    var xhr2 = new XMLHttpRequest();
+    xhr2.open('POST', form2.action);
+    xhr2.setRequestHeader('X-CSRFToken', form2.csrfmiddlewaretoken.value);
+    var formData2 = new FormData2(form2);
+    xhr2.send(formData2);
+}
+function goToHomePage() {
+  window.location.href = "/";
+}
+</script>
+</body>
+</html>
